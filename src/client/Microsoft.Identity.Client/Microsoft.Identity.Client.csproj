@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);RUNTIME</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkNetCore)' ">
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkNetCore)' OR '$(TargetFramework)' == '$(TargetFrameworkNetCore3)'">
     <DefineConstants>$(DefineConstants);NET_CORE_RUNTIME</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkUap)' ">
@@ -20,6 +20,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkNetStandard)'">
     <DefineConstants>$(DefineConstants);NETSTANDARD_RUNTIME</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkNetCore3)'">
+    <DefineConstants>$(DefineConstants);NET_CORE_3_RUNTIME</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <ReferenceAssemblyProjectReference Include="..\Microsoft.Identity.Client.Ref\Microsoft.Identity.Client.Ref.csproj" />
