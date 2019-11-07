@@ -20,7 +20,13 @@ namespace Microsoft.Identity.Client.Cache.Items
             string clientId,
             MsalTokenResponse response,
             string userId=null)
-            : this(preferredCacheEnv, clientId, response.RefreshToken, response.ClientInfo, response.FamilyId, userId)
+            : this(
+                  preferredCacheEnv, 
+                  clientId, 
+                  response.RefreshToken, 
+                  response.ClientInfo, 
+                  response.FamilyId, 
+                  userId)
         {
         }
 

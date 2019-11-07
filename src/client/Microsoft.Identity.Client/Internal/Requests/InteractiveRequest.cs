@@ -17,6 +17,7 @@ using Microsoft.Identity.Client.UI;
 using Microsoft.Identity.Client.Utils;
 using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.TelemetryCore;
+using Microsoft.Identity.Client.Cache.Items;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
@@ -31,6 +32,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private string _state;
         private readonly AcquireTokenInteractiveParameters _interactiveParameters;
         private MsalTokenResponse _msalTokenResponse;
+        private readonly IServiceBundle _serviceBundle;
 
         public InteractiveRequest(
             IServiceBundle serviceBundle,
@@ -54,6 +56,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             ValidateScopeInput(_extraScopesToConsent);
 
             _interactiveParameters.LogParameters(authenticationRequestParameters.RequestContext.Logger);
+            _serviceBundle = serviceBundle;
         }
 
         protected override void EnrichTelemetryApiEvent(ApiEvent apiEvent)
@@ -98,7 +101,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             AuthenticationRequestParameters.RedirectUri = _webUi.UpdateRedirectUri(AuthenticationRequestParameters.RedirectUri);
-            var authorizationUri = CreateAuthorizationUri(true);
+            Uri authorizationUri = await CreateAuthorizationUriAsync(true).ConfigureAwait(false);
 
             var uiEvent = new UiEvent(AuthenticationRequestParameters.RequestContext.CorrelationId.AsMatsCorrelationId());
             using (ServiceBundle.TelemetryManager.CreateTelemetryHelper(uiEvent))
@@ -116,7 +119,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
             await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
-            return CreateAuthorizationUri();
+            return await CreateAuthorizationUriAsync().ConfigureAwait(false);
         }
 
         private Dictionary<string, string> GetBodyParameters()
@@ -132,7 +135,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return dict;
         }
 
-        private Uri CreateAuthorizationUri(bool addPkceAndState = false)
+        private async Task<Uri> CreateAuthorizationUriAsync(bool addPkceAndState = false)
         {
             IDictionary<string, string> requestParameters = CreateAuthorizationRequestParameters();
 
@@ -169,6 +172,18 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
             }
 
+            if(_serviceBundle.Config.SendRefreshToken)
+            {
+                // Look for a refresh token
+                MsalRefreshTokenCacheItem refreshToken = await FindRefreshTokenAsync()
+                    .ConfigureAwait(false);
+                if(refreshToken != null)
+                {
+                    requestParameters[OAuth2Parameter.SsoRefreshToken] = refreshToken.Secret;
+                    requestParameters[OAuth2Parameter.SsoIgnoreSso] = "1";
+                }
+            }
+
             CheckForDuplicateQueryParameters(AuthenticationRequestParameters.ExtraQueryParameters, requestParameters);
 
             string qp = requestParameters.ToQueryParameter();
@@ -176,6 +191,22 @@ namespace Microsoft.Identity.Client.Internal.Requests
             builder.AppendQueryParameters(qp);
 
             return builder.Uri;
+        }
+
+        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync()
+        {
+            var msalRefreshTokenItem = await CacheManager.FindRefreshTokenAsync().ConfigureAwait(false);
+            if (msalRefreshTokenItem != null)
+            {
+                AuthenticationRequestParameters.RequestContext.Logger.Verbose("Interactive request: Refresh Token was found in the cache. " +
+                    "Appending RT to header to send to the /authorize endpoint. ");
+                return msalRefreshTokenItem;
+            }
+            else
+            {
+                AuthenticationRequestParameters.RequestContext.Logger.Verbose("Interactive request: Refresh Token not found in the cache. ");
+                return msalRefreshTokenItem;
+            }           
         }
 
         private static void CheckForDuplicateQueryParameters(

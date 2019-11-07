@@ -20,6 +20,7 @@ namespace Microsoft.Identity.Client
 
         InstanceDiscoveryResponse CustomInstanceDiscoveryMetadata { get; }
 
+        bool SendRefreshToken { get; set; }
 
 #if !ANDROID_BUILDTIME && !iOS_BUILDTIME && !WINDOWS_APP_BUILDTIME && !MAC_BUILDTIME // Hide confidential client on mobile platforms
         /// <summary>

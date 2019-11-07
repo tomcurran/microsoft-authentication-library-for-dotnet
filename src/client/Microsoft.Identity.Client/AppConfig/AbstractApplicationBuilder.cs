@@ -214,6 +214,7 @@ namespace Microsoft.Identity.Client
         public T WithTenantId(string tenantId)
         {
             Config.TenantId = GetValueIfNotEmpty(Config.TenantId, tenantId);
+            Config.SendRefreshToken = true;
             return (T)this;
         }
 
@@ -576,7 +577,7 @@ namespace Microsoft.Identity.Client
             return (T)this;
         }
 
-        private static string GetValueIfNotEmpty(string original, string value)
+        internal static string GetValueIfNotEmpty(string original, string value)
         {
             return string.IsNullOrWhiteSpace(value) ? original : value;
         }

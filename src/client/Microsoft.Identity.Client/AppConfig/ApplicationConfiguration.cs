@@ -93,5 +93,7 @@ namespace Microsoft.Identity.Client
         /// Should _not_ go in the interface, only for builder usage while determining authorities with ApplicationOptions
         /// </summary>
         internal string Instance { get; set; }
+
+        public bool SendRefreshToken { get; set; } = false;
     }
 }
