@@ -12,7 +12,10 @@ namespace Microsoft.Identity.Client.Platforms.Android
     [global::Android.Runtime.Preserve(AllMembers = true)]
     internal class AndroidWebUIFactory : IWebUIFactory
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        public IWebUI CreateAuthenticationDialog(
+            CoreUIParent parent, 
+            RequestContext requestContext, 
+            string ssoHeader)
         {
             if (parent.UseEmbeddedWebview)
             {

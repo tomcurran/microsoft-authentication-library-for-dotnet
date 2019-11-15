@@ -5,19 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.ApiConfig.Parameters;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Http;
 using Microsoft.Identity.Client.Internal.Broker;
-using Microsoft.Identity.Client.TelemetryCore.Internal.Events;
 using Microsoft.Identity.Client.OAuth2;
+using Microsoft.Identity.Client.TelemetryCore.Internal;
+using Microsoft.Identity.Client.TelemetryCore.Internal.Events;
 using Microsoft.Identity.Client.UI;
 using Microsoft.Identity.Client.Utils;
-using Microsoft.Identity.Client.TelemetryCore.Internal;
-using Microsoft.Identity.Client.TelemetryCore;
-using Microsoft.Identity.Client.Cache.Items;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
@@ -101,7 +100,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             AuthenticationRequestParameters.RedirectUri = _webUi.UpdateRedirectUri(AuthenticationRequestParameters.RedirectUri);
-            Uri authorizationUri = await CreateAuthorizationUriAsync(true).ConfigureAwait(false);
+
+            string additionalHeaders = CreateAuthorizationHeaders(true);
+            Uri authorizationUri = CreateAuthorizationUri(true);
+            
+            string headers = string.Empty;
+
+            if (_interactiveParameters.SendRefreshToken)
+            {
+                string refreshTokenHeader = await FindRefreshTokenAndReturnHeaderAsync().ConfigureAwait(false);
+                headers = additionalHeaders + refreshTokenHeader;
+            }
 
             var uiEvent = new UiEvent(AuthenticationRequestParameters.RequestContext.CorrelationId.AsMatsCorrelationId());
             using (ServiceBundle.TelemetryManager.CreateTelemetryHelper(uiEvent))
@@ -109,6 +118,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 _authorizationResult = await _webUi.AcquireAuthorizationAsync(
                                            authorizationUri,
                                            AuthenticationRequestParameters.RedirectUri,
+                                           headers,
                                            AuthenticationRequestParameters.RequestContext,
                                            cancellationToken).ConfigureAwait(false);
                 uiEvent.UserCancelled = _authorizationResult.Status == AuthorizationStatus.UserCancel;
@@ -135,7 +145,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return dict;
         }
 
-        private async Task<Uri> CreateAuthorizationUriAsync(bool addPkceAndState = false)
+        private Uri CreateAuthorizationUri(bool addPkceAndState = false)
         {
             IDictionary<string, string> requestParameters = CreateAuthorizationRequestParameters();
 
@@ -172,18 +182,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
             }
 
-            if(_serviceBundle.Config.SendRefreshToken)
-            {
-                // Look for a refresh token
-                MsalRefreshTokenCacheItem refreshToken = await FindRefreshTokenAsync()
-                    .ConfigureAwait(false);
-                if(refreshToken != null)
-                {
-                    requestParameters[OAuth2Parameter.SsoRefreshToken] = refreshToken.Secret;
-                    requestParameters[OAuth2Parameter.SsoIgnoreSso] = "1";
-                }
-            }
-
             CheckForDuplicateQueryParameters(AuthenticationRequestParameters.ExtraQueryParameters, requestParameters);
 
             string qp = requestParameters.ToQueryParameter();
@@ -193,20 +191,75 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return builder.Uri;
         }
 
-        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync()
+        private string CreateAuthorizationHeaders(bool addPkceAndState = false)
+        {
+            IDictionary<string, string> requestParameters = CreateAuthorizationRequestParameters();
+
+            if (addPkceAndState)
+            {
+                _codeVerifier = ServiceBundle.PlatformProxy.CryptographyManager.GenerateCodeVerifier();
+                string codeVerifierHash = ServiceBundle.PlatformProxy.CryptographyManager.CreateBase64UrlEncodedSha256Hash(_codeVerifier);
+
+                requestParameters[OAuth2Parameter.CodeChallenge] = codeVerifierHash;
+                requestParameters[OAuth2Parameter.CodeChallengeMethod] = OAuth2Value.CodeChallengeMethodValue;
+
+                _state = Guid.NewGuid().ToString() + Guid.NewGuid().ToString();
+                requestParameters[OAuth2Parameter.State] = _state;
+            }
+
+            // Add uid/utid values to QP if user object was passed in.
+            if (_interactiveParameters.Account != null)
+            {
+                if (!string.IsNullOrEmpty(_interactiveParameters.Account.Username))
+                {
+                    requestParameters[OAuth2Parameter.LoginHint] = _interactiveParameters.Account.Username;
+                }
+
+                if (_interactiveParameters.Account?.HomeAccountId?.ObjectId != null)
+                {
+                    requestParameters[OAuth2Parameter.LoginReq] =
+                        _interactiveParameters.Account.HomeAccountId.ObjectId;
+                }
+
+                if (!string.IsNullOrEmpty(_interactiveParameters.Account?.HomeAccountId?.TenantId))
+                {
+                    requestParameters[OAuth2Parameter.DomainReq] =
+                        _interactiveParameters.Account.HomeAccountId.TenantId;
+                }
+            }
+
+            CheckForDuplicateQueryParameters(AuthenticationRequestParameters.ExtraQueryParameters, requestParameters);
+            string header = string.Join("\r\n", requestParameters ?? new Dictionary<string, string>());
+            string headerEnd = header + "\r\n";
+            return headerEnd;
+        }
+
+        private async Task<string> FindRefreshTokenAndReturnHeaderAsync()
         {
             var msalRefreshTokenItem = await CacheManager.FindRefreshTokenAsync().ConfigureAwait(false);
             if (msalRefreshTokenItem != null)
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Verbose("Interactive request: Refresh Token was found in the cache. " +
                     "Appending RT to header to send to the /authorize endpoint. ");
-                return msalRefreshTokenItem;
+
+                Dictionary<string, string> ssoHeader = new Dictionary<string, string>();
+                //ssoHeader.Add(OAuth2Parameter.RedirectUri, AuthenticationRequestParameters.RedirectUri.OriginalString);
+                ssoHeader.Add(OAuth2Parameter.SsoRefreshToken, msalRefreshTokenItem.Secret);
+                ssoHeader.Add(OAuth2Parameter.SsoIgnoreSso, "1");
+                //ssoHeader.Add(OAuth2Parameter.GrantType, OAuth2GrantType.AuthorizationCode);
+                //ssoHeader.Add(OAuth2Parameter.Code, _authorizationResult.Code);
+                //ssoHeader.Add(OAuth2Parameter.CodeVerifier, _codeVerifier);
+
+                string header = string.Join("\r\n", ssoHeader ?? new Dictionary<string, string>());
+                string headerEnd = header + "\r\n";
+
+                return headerEnd;
             }
             else
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Verbose("Interactive request: Refresh Token not found in the cache. ");
-                return msalRefreshTokenItem;
-            }           
+                return string.Empty;
+            }
         }
 
         private static void CheckForDuplicateQueryParameters(
@@ -305,7 +358,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             if (_authorizationResult.Status != AuthorizationStatus.Success)
             {
                 ServiceBundle.DefaultLogger.InfoPii(
-                    LogMessages.AuthorizationResultWasNotSuccessful + _authorizationResult.ErrorDescription ?? "Unknown error.", 
+                    LogMessages.AuthorizationResultWasNotSuccessful + _authorizationResult.ErrorDescription ?? "Unknown error.",
                     LogMessages.AuthorizationResultWasNotSuccessful);
                 throw new MsalServiceException(
                     _authorizationResult.Error,

@@ -214,7 +214,6 @@ namespace Microsoft.Identity.Client
         public T WithTenantId(string tenantId)
         {
             Config.TenantId = GetValueIfNotEmpty(Config.TenantId, tenantId);
-            Config.SendRefreshToken = true;
             return (T)this;
         }
 
@@ -329,7 +328,7 @@ namespace Microsoft.Identity.Client
 
             if (Config.TelemetryCallback != null && Config.TelemetryConfig != null)
             {
-                throw new MsalClientException(MsalError.TelemetryConfigOrTelemetryCallback, 
+                throw new MsalClientException(MsalError.TelemetryConfigOrTelemetryCallback,
                     MsalErrorMessage.MatsAndTelemetryCallbackCannotBeConfiguredSimultaneously);
             }
         }
@@ -577,7 +576,7 @@ namespace Microsoft.Identity.Client
             return (T)this;
         }
 
-        internal static string GetValueIfNotEmpty(string original, string value)
+        private static string GetValueIfNotEmpty(string original, string value)
         {
             return string.IsNullOrWhiteSpace(value) ? original : value;
         }

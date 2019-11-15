@@ -11,7 +11,10 @@ namespace Microsoft.Identity.Client.Platforms.iOS
 {
     internal class IosWebUIFactory : IWebUIFactory
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        public IWebUI CreateAuthenticationDialog(
+            CoreUIParent parent, 
+            RequestContext requestContext, 
+            string ssoHeader)
         {
             if (parent.UseEmbeddedWebview)
             {

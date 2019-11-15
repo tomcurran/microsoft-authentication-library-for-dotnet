@@ -10,20 +10,24 @@ namespace Microsoft.Identity.Client.Platforms.net45
     {
         private WindowsFormsWebAuthenticationDialog _dialog;
 
-        public InteractiveWebUI(CoreUIParent parent, RequestContext requestContext)
+        public InteractiveWebUI(CoreUIParent parent, RequestContext requestContext, string ssoHeader)
         {
             OwnerWindow = parent?.OwnerWindow;
             SynchronizationContext = parent?.SynchronizationContext;
             RequestContext = requestContext;
+            SsoHeader = ssoHeader;
         }
 
         protected override AuthorizationResult OnAuthenticate()
         {
             AuthorizationResult result;
 
-            using (_dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow) {RequestContext = RequestContext})
+            using (_dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow) {
+                RequestContext = RequestContext,
+                SsoHeader = SsoHeader
+            })
             {
-                result = _dialog.AuthenticateAAD(RequestUri, CallbackUri);
+                result = _dialog.AuthenticateAAD(RequestUri, CallbackUri, SsoHeader);
             }
 
             return result;

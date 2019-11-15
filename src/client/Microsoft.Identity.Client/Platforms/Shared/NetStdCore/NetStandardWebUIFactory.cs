@@ -9,7 +9,10 @@ namespace Microsoft.Identity.Client.Platforms.Shared.NetStdCore
 {
     internal class NetStandardWebUIFactory : IWebUIFactory
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        public IWebUI CreateAuthenticationDialog(
+            CoreUIParent parent, 
+            RequestContext requestContext,
+            string ssoHeader)
         {
             return new DefaultOsBrowserWebUi(
                 requestContext.ServiceBundle.PlatformProxy,

@@ -52,8 +52,8 @@ namespace NetFx
             Console.ResetColor();
             Console.BackgroundColor = ConsoleColor.Black;
             var pca = CreatePca();
-            var cca = CreateCca();
-            RunConsoleAppLogicAsync(pca, cca).Wait();
+           // var cca = CreateCca();
+            RunConsoleAppLogicAsync(pca, null).Wait();
         }
 
         private static string GetAuthority()
@@ -181,9 +181,6 @@ namespace NetFx
                             authTask = pca.AcquireTokenInteractive(s_scopes)
                                 .WithPrompt(Prompt.Consent)
                                 .ExecuteAsync(CancellationToken.None);
-
-                            await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
-                            break;
 
                             await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
                             break;

@@ -9,7 +9,10 @@ namespace Microsoft.Identity.Client.Platforms.uap
 {
     internal class WebUIFactory : IWebUIFactory
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        public IWebUI CreateAuthenticationDialog(
+            CoreUIParent parent, 
+            RequestContext requestContext,
+            string ssoHeader)
         {
             if (!parent.UseEmbeddedWebview)
             {

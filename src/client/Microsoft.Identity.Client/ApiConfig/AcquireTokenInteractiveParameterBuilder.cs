@@ -141,6 +141,7 @@ namespace Microsoft.Identity.Client
         {
             CommonParameters.AddApiTelemetryFeature(ApiTelemetryFeature.WithLoginHint);
             Parameters.LoginHint = loginHint;
+            Parameters.SendRefreshToken = true;
             return this;
         }
 

@@ -19,25 +19,28 @@ namespace Microsoft.Identity.Client.Platforms.net45
         protected SynchronizationContext SynchronizationContext { get; set; }
 
         public RequestContext RequestContext { get; set; }
+        public string SsoHeader { get; set; }
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(
             Uri authorizationUri,
             Uri redirectUri,
+            string ssoHeader,
             RequestContext requestContext,
             CancellationToken cancellationToken)
         {
+            SsoHeader = ssoHeader;
             AuthorizationResult authorizationResult = null;
 
             var sendAuthorizeRequest = new Action(() =>
             {
-                authorizationResult = Authenticate(authorizationUri, redirectUri);
+                authorizationResult = Authenticate(authorizationUri, redirectUri, ssoHeader);
             });
 
             var sendAuthorizeRequestWithTcs = new Action<object>((tcs) =>
             {
                 try
                 {
-                    authorizationResult = Authenticate(authorizationUri, redirectUri);
+                    authorizationResult = Authenticate(authorizationUri, redirectUri, ssoHeader);
                    ((TaskCompletionSource<object>)tcs).TrySetResult(null);
                 }
                 catch (Exception e)
@@ -96,10 +99,14 @@ namespace Microsoft.Identity.Client.Platforms.net45
             return await Task.Factory.StartNew(() => authorizationResult).ConfigureAwait(false);
         }
 
-        internal AuthorizationResult Authenticate(Uri requestUri, Uri callbackUri)
+        internal AuthorizationResult Authenticate(
+            Uri requestUri, 
+            Uri callbackUri,
+            string ssoHeader)
         {
             RequestUri = requestUri;
             CallbackUri = callbackUri;
+            SsoHeader = ssoHeader;
 
             return OnAuthenticate();
         }

@@ -138,7 +138,8 @@ namespace Microsoft.Identity.Client.ApiConfig.Executors
 #endif
             return ServiceBundle.PlatformProxy.GetWebUiFactory().CreateAuthenticationDialog(
                 coreUiParent,
-                requestContext);
+                requestContext,
+                null);
         }
 
         private static bool GetUseEmbeddedWebview(WebViewPreference userPreference, bool defaultValue)

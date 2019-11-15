@@ -10,7 +10,10 @@ namespace Microsoft.Identity.Client.Platforms.net45
 {
     internal class NetDesktopWebUIFactory : IWebUIFactory
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        public IWebUI CreateAuthenticationDialog(
+            CoreUIParent parent, 
+            RequestContext requestContext,
+            string ssoHeader)
         {
             if (parent.UseHiddenBrowser)
             {
@@ -25,7 +28,10 @@ namespace Microsoft.Identity.Client.Platforms.net45
                     parent.SystemWebViewOptions);
             }
 
-            return new InteractiveWebUI(parent, requestContext);
+            return new InteractiveWebUI(
+                parent, 
+                requestContext,
+                ssoHeader);
         }
     }
 }
