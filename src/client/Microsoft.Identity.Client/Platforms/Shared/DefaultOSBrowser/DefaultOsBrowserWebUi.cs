@@ -55,6 +55,7 @@ namespace Microsoft.Identity.Client.Platforms.Shared.Desktop.OsBrowser
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(
             Uri authorizationUri,
             Uri redirectUri,
+            string ssoHeader,
             RequestContext requestContext,
             CancellationToken cancellationToken)
         {
