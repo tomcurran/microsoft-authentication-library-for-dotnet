@@ -3,12 +3,12 @@
 
   <PropertyGroup>
     <TargetFrameworkNetDesktop>net45</TargetFrameworkNetDesktop>
-    <TargetFrameworkNetStandard>netstandard1.3</TargetFrameworkNetStandard>
+    <TargetFrameworkNetStandard>netstandard1.4</TargetFrameworkNetStandard>
     <TargetFrameworkNetCore>netcoreapp2.1</TargetFrameworkNetCore>
-    <TargetFrameworkUap>uap10.0</TargetFrameworkUap>
+    <!--<TargetFrameworkUap>uap10.0</TargetFrameworkUap>
     <TargetFrameworkIos>Xamarin.iOS10</TargetFrameworkIos>
     <TargetFrameworkMac>xamarinmac20</TargetFrameworkMac>
-    <TargetFrameworkAndroid>MonoAndroid9.0</TargetFrameworkAndroid>
+    <TargetFrameworkAndroid>MonoAndroid9.0</TargetFrameworkAndroid>-->
 
     <TargetFrameworks Condition="$([MSBuild]::IsOsPlatform('Windows'))">$(TargetFrameworkNetDesktop);$(TargetFrameworkNetStandard);$(TargetFrameworkNetCore);$(TargetFrameworkUap);$(TargetFrameworkIos);$(TargetFrameworkAndroid);$(TargetFrameworkMac)</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOsPlatform('OSX'))">$(TargetFrameworkNetStandard);$(TargetFrameworkNetCore);$(TargetFrameworkIos);$(TargetFrameworkAndroid);$(TargetFrameworkMac)</TargetFrameworks>
@@ -18,6 +18,8 @@
   <PropertyGroup>
     <!-- The MSAL.snk has both private and public keys -->
     <DelaySign>false</DelaySign>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+  
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet and AssemblyInfo metadata">
@@ -245,6 +247,8 @@
     <None Update="$(PathToMsalSources)\Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
     <None Update="$(PathToMsalSources)\Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
     <None Update="$(PathToMsalSources)\Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
+    
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.3.0" />
   </ItemGroup>
 
   <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows'))">

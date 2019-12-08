@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
 using Microsoft.Identity.Client.Utils;
 using Microsoft.Identity.Json.Linq;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Client.Internal
 {
@@ -60,6 +61,7 @@ namespace Microsoft.Identity.Client.Internal
             }
 
             return string.Concat(token, ".", UrlEncodeSegment(credential.Sign(_cryptographyManager, token)));
+
         }
 
         private static string EncodeSegment(string segment)
@@ -188,17 +190,29 @@ namespace Microsoft.Identity.Client.Internal
             {
                 X509CertificateThumbprint = Credential.Thumbprint;
                 X509CertificatePublicCertValue = null;
+                
 
                 if (!sendCertificate)
                 {
                     return;
                 }
 
+                if (credential.SigningCredentials is X509SigningCredentials)
+                {
+                    var cert = ((X509SigningCredentials)credential.SigningCredentials).Certificate;
+
+
 #if DESKTOP
-                X509CertificatePublicCertValue = Convert.ToBase64String(credential.Certificate.GetRawCertData());
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.GetRawCertData());
 #else
-                X509CertificatePublicCertValue = Convert.ToBase64String(credential.Certificate.RawData);
+                X509CertificatePublicCertValue = Convert.ToBase64String(cert.RawData);
 #endif
+                }
+                else
+                {
+                    throw new MsalClientException("x5c_only_with_certs", "no certificate, no x5c");
+                }
+
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.KeyId)]

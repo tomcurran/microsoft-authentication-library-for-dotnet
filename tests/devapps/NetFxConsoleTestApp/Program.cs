@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
@@ -83,9 +84,14 @@ namespace NetFx
 
         private static IConfidentialClientApplication CreateCca()
         {
+            X509Certificate2 cert = LoadUserCertByName("CN=DaemonConsoleCert");
+
             IConfidentialClientApplication cca = ConfidentialClientApplicationBuilder
-                .Create(s_clientIdForConfidentialApp)
-                .WithClientSecret(s_confidentialClientSecret)
+                //.Create(s_clientIdForConfidentialApp)
+                //.WithClientSecret(s_confidentialClientSecret)
+                .Create("eda6cc78-d861-4b9b-bfdb-d828523f47b3")
+                .WithTenantId("49f548d0-12b7-4169-a390-bb5304d24462")
+                .WithCertificate(cert)
                 .Build();
 
             BindCache(cca.UserTokenCache, UserCacheFile);
@@ -93,6 +99,28 @@ namespace NetFx
 
             return cca;
         }
+
+        private static X509Certificate2 LoadUserCertByName(string certificateName)
+        {
+            X509Certificate2 cert = null;
+
+            using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+            {
+                store.Open(OpenFlags.ReadOnly);
+                X509Certificate2Collection certCollection = store.Certificates;
+
+                // Find unexpired certificates.
+                X509Certificate2Collection currentCerts = certCollection.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+
+                // From the collection of unexpired certificates, find the ones with the correct name.
+                X509Certificate2Collection signingCert = currentCerts.Find(X509FindType.FindBySubjectDistinguishedName, certificateName, false);
+
+                // Return the first certificate in the collection, has the right name and is current.
+                cert = signingCert.OfType<X509Certificate2>().OrderByDescending(c => c.NotBefore).FirstOrDefault();
+            }
+            return cert;
+        }
+
         private static IPublicClientApplication CreatePca()
         {
             IPublicClientApplication pca = PublicClientApplicationBuilder
@@ -217,8 +245,8 @@ namespace NetFx
                             if (_usePoP)
                             {
                                 silentBuilder = silentBuilder
-                                    .WithExtraQueryParameters(GetTestSliceParams())
-                                    .WithPoPAuthenticationScheme(new HttpRequestMessage(s_popMethod, PoPUri));
+                                    .WithExtraQueryParameters(GetTestSliceParams());
+                                    //.WithPoPAuthenticationScheme(new HttpRequestMessage(s_popMethod, PoPUri));
                             }
 
                             await FetchTokenAndCallApiAsync(pca, silentBuilder.ExecuteAsync()).ConfigureAwait(false);
@@ -234,8 +262,8 @@ namespace NetFx
                                     if (_usePoP)
                                     {
                                         silentBuilder = silentBuilder
-                                            .WithExtraQueryParameters(GetTestSliceParams())
-                                            .WithPoPAuthenticationScheme(new HttpRequestMessage(s_popMethod, PoPUri));
+                                            .WithExtraQueryParameters(GetTestSliceParams());
+                                            //.WithPoPAuthenticationScheme(new HttpRequestMessage(s_popMethod, PoPUri));
                                     }
                                     return silentBuilder.ExecuteAsync();
                                 })

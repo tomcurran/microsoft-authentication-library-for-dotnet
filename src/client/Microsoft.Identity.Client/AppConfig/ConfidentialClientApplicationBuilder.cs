@@ -68,7 +68,25 @@ namespace Microsoft.Identity.Client
                 throw new ArgumentNullException(nameof(certificate));
             }
 
-            Config.ClientCredentialCertificate = certificate;
+            Config.SigningCredentials = new Microsoft.IdentityModel.Tokens.X509SigningCredentials(certificate);
+
+            Config.ConfidentialClientCredentialCount++;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="signingCredentials"></param>
+        /// <returns></returns>
+        public ConfidentialClientApplicationBuilder WithSigningCredentials(IdentityModel.Tokens.SigningCredentials signingCredentials)
+        {
+            if (signingCredentials == null)
+            {
+                throw new ArgumentNullException(nameof(signingCredentials));
+            }
+
+            Config.SigningCredentials = signingCredentials;
             Config.ConfidentialClientCredentialCount++;
             return this;
         }
@@ -94,7 +112,7 @@ namespace Microsoft.Identity.Client
                 throw new ArgumentNullException(nameof(claimsToSign));
             }
 
-            Config.ClientCredentialCertificate = certificate;
+            Config.SigningCredentials = new Microsoft.IdentityModel.Tokens.X509SigningCredentials(certificate);
             Config.ClaimsToSign = claimsToSign;
             Config.MergeWithDefaultClaims = mergeWithDefaultClaims;
             Config.ConfidentialClientCredentialCount++;

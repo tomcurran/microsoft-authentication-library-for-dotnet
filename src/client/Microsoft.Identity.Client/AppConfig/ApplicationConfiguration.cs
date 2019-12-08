@@ -10,6 +10,7 @@ using Microsoft.Identity.Client.Http;
 using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Client
 {
@@ -71,9 +72,12 @@ namespace Microsoft.Identity.Client
         public string ClientSecret { get; internal set; }
         public string SignedClientAssertion { get; internal set; }
         public X509Certificate2 ClientCredentialCertificate { get; internal set; }
+
+        public SigningCredentials SigningCredentials { get; internal set; }
+
         public IDictionary<string, string> ClaimsToSign { get; internal set; }
         public bool MergeWithDefaultClaims { get; internal set; }
-        internal int ConfidentialClientCredentialCount;
+        internal int ConfidentialClientCredentialCount; //TODO: get rid of this
 
 #endif
 

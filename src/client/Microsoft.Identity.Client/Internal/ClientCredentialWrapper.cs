@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
 using Microsoft.Identity.Client.Utils;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Client.Internal
 {
@@ -31,88 +33,82 @@ namespace Microsoft.Identity.Client.Internal
 
             switch (AuthenticationType)
             {
-            case ConfidentialClientAuthenticationType.ClientCertificate:
-                Certificate = config.ClientCredentialCertificate;
-                break;
-            case ConfidentialClientAuthenticationType.ClientCertificateWithClaims:
-                Certificate = config.ClientCredentialCertificate;
-                ClaimsToSign = config.ClaimsToSign;
-                break;
-            case ConfidentialClientAuthenticationType.ClientSecret:
-                Secret = config.ClientSecret;
-                break;
-            case ConfidentialClientAuthenticationType.SignedClientAssertion:
-                SignedAssertion = config.SignedClientAssertion;
-                break;
+                case ConfidentialClientAuthenticationType.ClientCertificate:
+                    SigningCredentials = new X509SigningCredentials(config.ClientCredentialCertificate);
+                    //Certificate = config.ClientCredentialCertificate;
+                    break;
+                case ConfidentialClientAuthenticationType.ClientCertificateWithClaims:
+                    SigningCredentials = new X509SigningCredentials(config.ClientCredentialCertificate);
+                    //Certificate = config.ClientCredentialCertificate;
+                    ClaimsToSign = config.ClaimsToSign;
+                    break;
+                case ConfidentialClientAuthenticationType.ClientSecret:
+                    Secret = config.ClientSecret;
+                    break;
+                case ConfidentialClientAuthenticationType.SignedClientAssertion:
+                    SignedAssertion = config.SignedClientAssertion;
+                    break;
+                case ConfidentialClientAuthenticationType.SigningCredentials:
+                    SigningCredentials = config.SigningCredentials;
+                    break;
+                default:
+                    throw new NotImplementedException(AuthenticationType.ToString());
             }
         }
 
-        #region TestBuilders
-        //The following builders methods are inteded for testing
-        public static ClientCredentialWrapper CreateWithCertificate(X509Certificate2 certificate, IDictionary<string, string> claimsToSign = null)
-        {
-            return new ClientCredentialWrapper(certificate, claimsToSign);
-        }
+        //#region TestBuilders
+        ////The following builders methods are inteded for testing
+        //public static ClientCredentialWrapper CreateWithCertificate(X509Certificate2 certificate, IDictionary<string, string> claimsToSign = null)
+        //{
+        //    return new ClientCredentialWrapper(certificate, claimsToSign);
+        //}
 
-        public static ClientCredentialWrapper CreateWithSecret(string secret)
-        {
-            var app = new ClientCredentialWrapper(secret, ConfidentialClientAuthenticationType.ClientSecret);
-            app.AuthenticationType = ConfidentialClientAuthenticationType.ClientSecret;
-            return app;
-        }
+        //public static ClientCredentialWrapper CreateWithSecret(string secret)
+        //{
+        //    var app = new ClientCredentialWrapper(secret, ConfidentialClientAuthenticationType.ClientSecret);
+        //    app.AuthenticationType = ConfidentialClientAuthenticationType.ClientSecret;
+        //    return app;
+        //}
 
-        public static ClientCredentialWrapper CreateWithSignedClientAssertion(string signedClientAssertion)
-        {
-            var app = new ClientCredentialWrapper(signedClientAssertion, ConfidentialClientAuthenticationType.SignedClientAssertion);
-            app.AuthenticationType = ConfidentialClientAuthenticationType.SignedClientAssertion;
-            return app;
-        }
+        //public static ClientCredentialWrapper CreateWithSignedClientAssertion(string signedClientAssertion)
+        //{
+        //    var app = new ClientCredentialWrapper(signedClientAssertion, ConfidentialClientAuthenticationType.SignedClientAssertion);
+        //    app.AuthenticationType = ConfidentialClientAuthenticationType.SignedClientAssertion;
+        //    return app;
+        //}
 
-        private ClientCredentialWrapper(X509Certificate2 certificate, IDictionary<string, string> claimsToSign = null)
-        {
-            ConfidentialClientApplication.GuardMobileFrameworks();
+        //private ClientCredentialWrapper(X509Certificate2 certificate, IDictionary<string, string> claimsToSign = null)
+        //{
+        //    ConfidentialClientApplication.GuardMobileFrameworks();
 
-            Certificate = certificate;
+        //    Certificate = certificate;
 
-            if (claimsToSign != null && claimsToSign.Any())
-            {
-                ClaimsToSign = claimsToSign;
-                AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificateWithClaims;
-                return;
-            }
+        //    if (claimsToSign != null && claimsToSign.Any())
+        //    {
+        //        ClaimsToSign = claimsToSign;
+        //        AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificateWithClaims;
+        //        return;
+        //    }
 
-            AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificate;
-        }
+        //    AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificate;
+        //}
 
-        private ClientCredentialWrapper(string secretOrAssertion, ConfidentialClientAuthenticationType authType)
-        {
-            ConfidentialClientApplication.GuardMobileFrameworks();
+        //private ClientCredentialWrapper(string secretOrAssertion, ConfidentialClientAuthenticationType authType)
+        //{
+        //    ConfidentialClientApplication.GuardMobileFrameworks();
 
-            if (authType == ConfidentialClientAuthenticationType.SignedClientAssertion)
-            {
-                SignedAssertion = secretOrAssertion;
-            }
-            else
-            {
-                Secret = secretOrAssertion;
-            }
-        }
+        //    if (authType == ConfidentialClientAuthenticationType.SignedClientAssertion)
+        //    {
+        //        SignedAssertion = secretOrAssertion;
+        //    }
+        //    else
+        //    {
+        //        Secret = secretOrAssertion;
+        //    }
+        //}
 
-        #endregion TestBuilders
-        private void CheckCertificateKeySize(X509Certificate2 cert)
-        {
-            //Currently, the min key size is enforced on desktop (net 45) as 2048 as it is the current industry standard.
-            //This is not enforced on netCore unfortunalty and adding this enforcement may break customers on netCore.
-            //NetCore can only enforce a min key size of 512 since it is enforced by the portal already.
-#if DESKTOP
-            if (cert.PublicKey.Key.KeySize < MinKeySizeInBits)
-            {
-                throw new ArgumentOutOfRangeException(nameof(cert),
-                    string.Format(CultureInfo.InvariantCulture, MsalErrorMessage.CertificateKeySizeTooSmallTemplate,
-                        MinKeySizeInBits));
-            }
-#endif
-        }
+        //#endregion TestBuilders
+
 
         private void ValidateCredentialParameters(ApplicationConfiguration config)
         {
@@ -124,6 +120,7 @@ namespace Microsoft.Identity.Client.Internal
             if (!string.IsNullOrWhiteSpace(config.ClientSecret))
             {
                 AuthenticationType = ConfidentialClientAuthenticationType.ClientSecret;
+                return;
             }
 
             if (config.ClientCredentialCertificate != null)
@@ -132,27 +129,75 @@ namespace Microsoft.Identity.Client.Internal
                 {
                     AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificateWithClaims;
                     AppendDefaultClaims = config.MergeWithDefaultClaims;
+                    return;
                 }
-                else
-                {
-                    AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificate;
-                }
+
+                AuthenticationType = ConfidentialClientAuthenticationType.ClientCertificate;
+                return;
             }
 
             if (!string.IsNullOrWhiteSpace(config.SignedClientAssertion))
             {
                 AuthenticationType = ConfidentialClientAuthenticationType.SignedClientAssertion;
             }
+
+            if (config.SigningCredentials != null)
+            {
+                AuthenticationType = ConfidentialClientAuthenticationType.SigningCredentials;
+            }
         }
 
         internal byte[] Sign(ICryptographyManager cryptographyManager, string message)
         {
-            return cryptographyManager.SignWithCertificate(message, Certificate);
+            // TODO: verify key size 
+
+            byte[] sig = cryptographyManager.SignWithCertificate(
+                message, ((X509SigningCredentials)SigningCredentials).Certificate);
+
+            string s1 = Base64UrlHelpers.Encode(sig);
+
+            var cryptoProviderFactory = SigningCredentials.CryptoProviderFactory ??
+                SigningCredentials.Key.CryptoProviderFactory;
+            var signatureProvider = cryptoProviderFactory.CreateForSigning(
+                SigningCredentials.Key, SigningCredentials.Algorithm);
+            if (signatureProvider == null)
+                throw new MsalClientException("bad_signing_credentials", "Signing credentials cannot be used to sign");
+
+            try
+            {
+                byte[] payload = Encoding.UTF8.GetBytes(message);
+                byte[] signature = signatureProvider.Sign(payload);
+                //string sig2 =  Base64UrlEncoder.Encode(signature);
+
+                return signature;
+            }
+            finally
+            {
+                cryptoProviderFactory.ReleaseSignatureProvider(signatureProvider);
+            }
         }
 
         public static int MinKeySizeInBits { get; } = 2048;
-        internal string Thumbprint { get { return Base64UrlHelpers.Encode(Certificate.GetCertHash()); } }
-        internal X509Certificate2 Certificate { get; private set; }
+        internal string Thumbprint
+        {
+            get
+            {
+                // TODO: it looks like for X509, the Thumbprint is a hash of the cert 
+                if (SigningCredentials is X509SigningCredentials)
+                {
+
+                    var hash = ((X509SigningCredentials)SigningCredentials).Certificate.GetCertHash();
+                    string oriKid = Base64UrlEncoder.Encode(hash);
+                    return oriKid;
+
+                }
+
+                return Base64UrlEncoder.Encode(SigningCredentials.Kid);
+            }
+        }
+
+        //internal X509Certificate2 Certificate { get; private set; }
+        internal SigningCredentials SigningCredentials { get; private set; }
         // The cached assertion created from the JWT signing operation
         internal string CachedAssertion { get; set; }
         internal long ValidTo { get; set; }
@@ -171,7 +216,8 @@ namespace Microsoft.Identity.Client.Internal
         ClientCertificate,
         ClientCertificateWithClaims,
         ClientSecret,
-        SignedClientAssertion
+        SignedClientAssertion,
+        SigningCredentials
     }
 #endif
 }
