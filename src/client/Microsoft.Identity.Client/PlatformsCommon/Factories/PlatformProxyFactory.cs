@@ -19,9 +19,9 @@ namespace Microsoft.Identity.Client.PlatformsCommon.Factories
         public static IPlatformProxy CreatePlatformProxy(ICoreLogger logger)
         {
             var finalLogger = logger ?? MsalLogger.NullLogger;
-
-#if NET_CORE
-            return new Microsoft.Identity.Client.Platforms.netcore.NetCorePlatformProxy(finalLogger);
+             
+#if NET_CORE || NET_CORE_3
+            return new Microsoft.Identity.Client.Platforms.Shared.NetCore.NetCorePlatformProxyShared(finalLogger);
 #elif ANDROID
             return new Microsoft.Identity.Client.Platforms.Android.AndroidPlatformProxy(finalLogger);
 #elif iOS

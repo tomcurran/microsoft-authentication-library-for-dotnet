@@ -8,8 +8,6 @@ namespace Microsoft.Identity.Client.Platforms.net45
 {
     internal class InteractiveWebUI : WebUI
     {
-        private WindowsFormsWebAuthenticationDialog _dialog;
-
         public InteractiveWebUI(CoreUIParent parent, RequestContext requestContext)
         {
             OwnerWindow = parent?.OwnerWindow;
@@ -21,7 +19,7 @@ namespace Microsoft.Identity.Client.Platforms.net45
         {
             AuthorizationResult result;
 
-            using (_dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow) {RequestContext = RequestContext})
+            using (WindowsFormsWebAuthenticationDialog _dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow) {RequestContext = RequestContext})
             {
                 result = _dialog.AuthenticateAAD(RequestUri, CallbackUri);
             }

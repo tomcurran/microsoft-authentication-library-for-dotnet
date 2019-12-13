@@ -86,11 +86,11 @@ namespace Microsoft.Identity.Client
         /// <param name="useEmbeddedWebView">If <c>true</c>, will use an embedded web browser,
         /// otherwise will attempt to use a system web browser. The default depends on the platform:
         /// <c>false</c> for Xamarin.iOS and Xamarin.Android, and <c>true</c> for .NET Framework,
-        /// and UWP</param>
+        /// and UWP and  NetCore3.0</param>
         /// <returns>The builder to chain the .With methods</returns>
         public AcquireTokenInteractiveParameterBuilder WithUseEmbeddedWebView(bool useEmbeddedWebView)
         {
-#if NET_CORE || NETSTANDARD
+#if !NET_CORE_3 || NETSTANDARD
             if (useEmbeddedWebView)
             {
                 throw new MsalClientException(MsalError.WebviewUnavailable, "An embedded webview is not available on this platform. " +

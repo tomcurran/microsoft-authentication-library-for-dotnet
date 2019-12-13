@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Identity.Client.Core;
+using Microsoft.Identity.Client.Platforms.net45;
 using Microsoft.Identity.Client.UI;
 
 namespace Microsoft.Identity.Client.Platforms.net45

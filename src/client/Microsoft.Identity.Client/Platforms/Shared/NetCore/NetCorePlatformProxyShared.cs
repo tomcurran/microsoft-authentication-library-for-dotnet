@@ -2,27 +2,28 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Cache;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Platforms.Shared.NetStdCore;
-using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
 using Microsoft.Identity.Client.PlatformsCommon.Shared;
+using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.UI;
+#if NET_CORE_3
+using Microsoft.Identity.Client.Platforms.netcore3;
+#endif
 
-namespace Microsoft.Identity.Client.Platforms.netcore
+namespace Microsoft.Identity.Client.Platforms.Shared.NetCore
 {
     /// <summary>
     /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here.
     /// </summary>
-    internal class NetCorePlatformProxy : AbstractPlatformProxy
+    internal class NetCorePlatformProxyShared : AbstractPlatformProxy
     {
-        public NetCorePlatformProxy(ICoreLogger logger)
+        public NetCorePlatformProxyShared(ICoreLogger logger)
             : base(logger)
         {
         }
@@ -129,8 +130,16 @@ namespace Microsoft.Identity.Client.Platforms.netcore
             return new InMemoryTokenCacheAccessor();
         }
 
-        protected override IWebUIFactory CreateWebUiFactory() => new NetCoreWebUIFactory();
-        protected override ICryptographyManager InternalGetCryptographyManager() => new NetCoreCryptographyManager();
+        protected override IWebUIFactory CreateWebUiFactory()
+        {
+#if NET_CORE_3
+            return new NetCore3EmbeddedWebUIFactory();
+#else
+            return new NetStandardWebUIFactory();
+#endif
+        }
+
+        protected override ICryptographyManager InternalGetCryptographyManager() => new NetStandardCoreCryptographyManager();
         protected override IPlatformLogger InternalGetPlatformLogger() => new EventSourcePlatformLogger();
 
         public override string GetDeviceNetworkState()
@@ -156,7 +165,7 @@ namespace Microsoft.Identity.Client.Platforms.netcore
             // TODO(mats): need to detect operating system and switch on it to determine proper enum
             return MatsConverter.AsInt(OsPlatform.Win32);
         }
-        protected override IFeatureFlags CreateFeatureFlags() => new NetCoreFeatureFlags();
+        protected override IFeatureFlags CreateFeatureFlags() => new NetCoreFeatureFlagsShared();
 
         public override Task StartDefaultOsBrowserAsync(string url)
         {
@@ -164,6 +173,10 @@ namespace Microsoft.Identity.Client.Platforms.netcore
             return Task.FromResult(0);
         }
 
+#if NETCOREAPP3_0
+        public override bool UseEmbeddedWebViewDefault => true;
+#else
         public override bool UseEmbeddedWebViewDefault => false;
+#endif
     }
 }

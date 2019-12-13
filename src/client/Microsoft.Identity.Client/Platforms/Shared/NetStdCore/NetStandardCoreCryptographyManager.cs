@@ -9,9 +9,9 @@ using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
 using Microsoft.Identity.Client.Utils;
 
-namespace Microsoft.Identity.Client.Platforms.netcore
+namespace Microsoft.Identity.Client.Platforms.Shared.NetStdCore
 {
-    internal class NetCoreCryptographyManager : ICryptographyManager
+    internal class NetStandardCoreCryptographyManager : ICryptographyManager
     {
         public string CreateBase64UrlEncodedSha256Hash(string input)
         {
