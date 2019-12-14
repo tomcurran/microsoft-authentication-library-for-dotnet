@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 using NetCoreTestApp.Experimental;
-using NetStandard;
 
 namespace NetCoreTestApp
 {
@@ -152,7 +151,7 @@ namespace NetCoreTestApp
 
                             var cts = new CancellationTokenSource();
                             authTask = pca.AcquireTokenInteractive(s_scopes)
-                                .WithSystemWebViewOptions(options)
+                               // .WithSystemWebViewOptions(options)
                                 .ExecuteAsync(cts.Token);
 
                             await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
@@ -169,13 +168,7 @@ namespace NetCoreTestApp
                             authTask = pca.AcquireTokenSilent(s_scopes, account).ExecuteAsync(CancellationToken.None);
                             await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
 
-                            break;
-
-                        case 7:
-                            CancellationTokenSource cts2 = new CancellationTokenSource();
-                            NetStandardAuthenticator authenticator = new NetStandardAuthenticator(Log, CacheFilePath);
-                            await FetchTokenAndCallGraphAsync(pca, authenticator.GetTokenInteractiveAsync(cts2.Token)).ConfigureAwait(false);
-                            break;
+                            break;                   
 
                         case 8:
                             var accounts = await pca.GetAccountsAsync().ConfigureAwait(false);

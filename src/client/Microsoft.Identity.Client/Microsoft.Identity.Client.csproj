@@ -27,4 +27,10 @@
   <ItemGroup>
     <ReferenceAssemblyProjectReference Include="..\Microsoft.Identity.Client.Ref\Microsoft.Identity.Client.Ref.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Platforms\Shared\WinForms\WinFormsWebUI.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Platforms\Shared\WinForms\WinFormsWebUI.cs" />
+  </ItemGroup>
 </Project>

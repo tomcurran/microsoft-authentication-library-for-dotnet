@@ -132,11 +132,7 @@ namespace Microsoft.Identity.Client.Platforms.Shared.NetCore
 
         protected override IWebUIFactory CreateWebUiFactory()
         {
-#if NET_CORE_3
-            return new NetCore3EmbeddedWebUIFactory();
-#else
-            return new NetStandardWebUIFactory();
-#endif
+            return new NetCoreWebUIFactory();
         }
 
         protected override ICryptographyManager InternalGetCryptographyManager() => new NetStandardCoreCryptographyManager();
@@ -173,10 +169,6 @@ namespace Microsoft.Identity.Client.Platforms.Shared.NetCore
             return Task.FromResult(0);
         }
 
-#if NETCOREAPP3_0
-        public override bool UseEmbeddedWebViewDefault => true;
-#else
         public override bool UseEmbeddedWebViewDefault => false;
-#endif
     }
 }

@@ -129,6 +129,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkNetStandard)'">
     <Compile Include="$(PathToMsalSources)\Platforms\netstandard13\**\*.cs" LinkBase="Platforms\netstandard13" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\NetStdCore\**\*.cs" />
+    <!--<Compile Include="$(PathToMsalSources)\Platforms\Shared\WinForms\**\*.cs" />-->
 
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
@@ -148,9 +149,10 @@
   <!-- NetCore 2 only-->
   <ItemGroup Condition=" '$(TargetFramework)' == '$(TargetFrameworkNetCore)'">
   
-    <Compile Include="$(PathToMsalSources)\Platforms\Shared\Desktop\**\*.cs" />
+    <Compile Include="$(PathToMsalSources)\Platforms\Shared\DefaultOSBrowser\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\NetStdCore\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\NetCore\**\*.cs" />
+    <!--<Compile Include="$(PathToMsalSources)\Platforms\Shared\WinForms\**\*.cs" />-->
 
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
@@ -166,7 +168,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == '$(TargetFrameworkNetCore3)'">
     <Compile Include="$(PathToMsalSources)\Platforms\netcore3\**\*.cs" LinkBase="Platforms\netcore3" />
-    <Compile Include="$(PathToMsalSources)\Platforms\Shared\Desktop\**\*.cs" />
+    <Compile Include="$(PathToMsalSources)\Platforms\Shared\DefaultOSBrowser\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\NetStdCore\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\NetCore\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\WinForms\**\*.cs" />
@@ -185,7 +187,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == '$(TargetFrameworkNetDesktop)' ">
     <Compile Include="$(PathToMsalSources)\Platforms\net45\**\*.cs" LinkBase="Platforms\net45" />
-    <Compile Include="$(PathToMsalSources)\Platforms\Shared\Desktop\**\*.cs" />
+    <Compile Include="$(PathToMsalSources)\Platforms\Shared\DefaultOSBrowser\**\*.cs" />
     <Compile Include="$(PathToMsalSources)\Platforms\Shared\WinForms\**\*.cs" />
 
     <Compile Update="$(PathToMsalSources)\Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />

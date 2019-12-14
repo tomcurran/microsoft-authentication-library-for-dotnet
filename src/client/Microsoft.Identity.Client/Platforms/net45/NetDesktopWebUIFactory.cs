@@ -3,7 +3,7 @@
 
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Platforms.Shared.Desktop.OsBrowser;
-using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
+using Microsoft.Identity.Client.Platforms.Shared.NetStdCore;
 using Microsoft.Identity.Client.UI;
 
 namespace Microsoft.Identity.Client.Platforms.net45
@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Client.Platforms.net45
                     parent.SystemWebViewOptions);
             }
 
-            return new InteractiveWebUI(parent, requestContext);
+            return new WinFormsWebUI(parent, requestContext);
         }
     }
 }

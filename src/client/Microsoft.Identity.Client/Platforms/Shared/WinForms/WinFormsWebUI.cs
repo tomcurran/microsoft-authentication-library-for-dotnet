@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Client.Core;
+using Microsoft.Identity.Client.Platforms.net45;
 using Microsoft.Identity.Client.UI;
 
-namespace Microsoft.Identity.Client.Platforms.net45
+namespace Microsoft.Identity.Client.Platforms.Shared.NetStdCore
 {
-    internal class InteractiveWebUI : WebUI
+    internal class WinFormsWebUI : WebUI
     {
-        public InteractiveWebUI(CoreUIParent parent, RequestContext requestContext)
+        public WinFormsWebUI(CoreUIParent parent, RequestContext requestContext)
         {
             OwnerWindow = parent?.OwnerWindow;
             SynchronizationContext = parent?.SynchronizationContext;
