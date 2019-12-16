@@ -16,6 +16,7 @@ using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.PlatformsCommon.Interfaces;
 using Microsoft.Identity.Client.PlatformsCommon.Shared;
+using Microsoft.Identity.Client.Platforms.Shared.WinForms;
 using Microsoft.Identity.Client.UI;
 using Microsoft.Win32;
 

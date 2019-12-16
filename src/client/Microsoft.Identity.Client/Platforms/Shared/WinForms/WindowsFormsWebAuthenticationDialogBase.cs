@@ -12,7 +12,7 @@ using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.UI;
 using Microsoft.Identity.Client.Utils;
 
-namespace Microsoft.Identity.Client.Platforms.net45
+namespace Microsoft.Identity.Client.Platforms.Shared.WinForms
 {
     // This class (and related/derived classes) must be public so that COM can see them via ComVisible to attach to the browser.
     /// <summary>

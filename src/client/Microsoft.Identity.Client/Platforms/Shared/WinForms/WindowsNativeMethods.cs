@@ -4,10 +4,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Identity.Client.Core;
-using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Client.Platforms.net45
+namespace Microsoft.Identity.Client.Platforms.Shared.WinForms
 {
     internal static class WindowsNativeMethods
     {

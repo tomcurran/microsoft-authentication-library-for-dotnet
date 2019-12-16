@@ -3,8 +3,8 @@
 
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Platforms.Shared.Desktop.OsBrowser;
-using Microsoft.Identity.Client.Platforms.Shared.NetStdCore;
 using Microsoft.Identity.Client.UI;
+using Microsoft.Identity.Client.Platforms.Shared.WinForms;
 
 namespace Microsoft.Identity.Client.Platforms.net45
 {

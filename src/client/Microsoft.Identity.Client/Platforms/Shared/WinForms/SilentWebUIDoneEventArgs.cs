@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Identity.Client.Platforms.net45
+namespace Microsoft.Identity.Client.Platforms.Shared.WinForms
 {
     internal class SilentWebUIDoneEventArgs : EventArgs
     {

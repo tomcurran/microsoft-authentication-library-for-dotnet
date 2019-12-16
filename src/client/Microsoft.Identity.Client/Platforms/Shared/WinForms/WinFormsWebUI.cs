@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Client.Core;
-using Microsoft.Identity.Client.Platforms.net45;
 using Microsoft.Identity.Client.UI;
 
-namespace Microsoft.Identity.Client.Platforms.Shared.NetStdCore
+namespace Microsoft.Identity.Client.Platforms.Shared.WinForms
 {
     internal class WinFormsWebUI : WebUI
     {
