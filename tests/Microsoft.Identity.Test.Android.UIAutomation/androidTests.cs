@@ -87,7 +87,16 @@ namespace Microsoft.Identity.Test.UIAutomation
                 }
                 catch (Exception ex)
                 {
-                    LogMessage($"Fail: {test.Method.Name}, Error: {ex.Message}", stringBuilderMessage);
+                    if (ex is FileLoadException exFile)
+                    {
+                        LogMessage($"Fail: {test.Method.Name}, Error: {exFile.FusionLog}", stringBuilderMessage);
+                        LogMessage($"Fail: {test.Method.Name}, Error: {exFile.Message}", stringBuilderMessage);
+                        LogMessage($"Fail: {test.Method.Name}, Error: {exFile.InnerException.Message}", stringBuilderMessage);
+                    }
+                    else
+                    {
+                        LogMessage($"Fail: {test.Method.Name}, Error: {ex.Message}", stringBuilderMessage);
+                    }
                     hasFailed = true;
                 }
                 finally
@@ -108,19 +117,10 @@ namespace Microsoft.Identity.Test.UIAutomation
         {
             TestCommon.ResetInternalStaticCaches();
 
-            try
-            {
-                _mobileTestHelper.AcquireTokenTestHelper(
-                    _xamarinController,
-                    LabUserHelper.GetDefaultUserAsync().GetAwaiter().GetResult(),
-                    CoreUiTestConstants.AcquireTokenInteractive);
-            }
-            catch (FileLoadException ex)
-            {
-#pragma warning disable CA2201 // Do not raise reserved exception types
-                throw new Exception(ex.FusionLog);
-#pragma warning restore CA2201 // Do not raise reserved exception types
-            }
+            _mobileTestHelper.AcquireTokenTestHelper(
+                _xamarinController,
+                LabUserHelper.GetDefaultUserAsync().GetAwaiter().GetResult(),
+                CoreUiTestConstants.AcquireTokenInteractive);
         }
 
         /// <summary>
