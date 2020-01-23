@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using Microsoft.Identity.Client;
 using Xamarin.Forms;
 
@@ -49,6 +52,10 @@ namespace XForms
         protected override void OnStart()
         {
             // Handle when your app starts
+            AppCenter.Start("ios=4be201cc-2027-4045-b535-d57de5ff36c7;" +
+                            "uwp={};" +
+                            "android={}",
+                      typeof(Analytics), typeof(Crashes));
         }
 
         protected override void OnSleep()

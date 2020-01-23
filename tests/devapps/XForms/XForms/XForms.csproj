@@ -11,6 +11,8 @@
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="2.6.4" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="2.6.4" />
     <PackageReference Include="StrongNamer">
         <Version>0.0.8</Version>
     </PackageReference>
@@ -19,6 +21,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\client\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" />
     <ProjectReference Include="..\..\..\Microsoft.Identity.Test.Common\Microsoft.Identity.Test.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.AppCenter.Crashes">
+      <HintPath>..\XForms.iOS\obj\iPhone\Debug\SignedAssemblies\Microsoft.AppCenter.Crashes.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="TestPage.xaml">

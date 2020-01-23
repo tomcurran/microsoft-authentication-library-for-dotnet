@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AppCenter.Crashes;
 using Microsoft.Identity.Client;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -301,6 +302,8 @@ namespace XForms
 
         private void CreateExceptionMessage(Exception exception)
         {
+            Crashes.TrackError((exception));
+
             if (exception is MsalException msalException)
             {
                 acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}",
