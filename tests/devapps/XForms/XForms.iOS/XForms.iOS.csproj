@@ -137,7 +137,10 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
-  <Target Name="BeforeCodesign">
+  <PropertyGroup Condition="'$(APPCENTER_BUILD)' == ''">
+	<MtouchEnableBitcode>false</MtouchEnableBitcode>
+  </PropertyGroup>
+  <Target Name="BeforeCodesign" Condition="'$(APPCENTER_BUILD)' == ''">
     <Exec Command="$(_SdkDevPath)\Toolchains\XcodeDefault.xctoolchain\usr\bin\bitcode_strip %(_Frameworks.FullPath) -r -o %(_Frameworks.FullPath)" />
   </Target>
 </Project>
