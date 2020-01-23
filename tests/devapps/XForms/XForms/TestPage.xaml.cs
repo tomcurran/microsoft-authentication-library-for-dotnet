@@ -311,7 +311,13 @@ namespace XForms
                 acquireResponseLabel.Text = "Exception - " + exception.Message;
             }
 
-            Console.WriteLine(exception);
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Exception -\nMessage: {0}\nStack Trace: {1}",
+                    exception.Message, exception.StackTrace));
+
+            if (exception.InnerException != null)
+            {
+                Console.WriteLine(exception);
+            }
         }
     }
 }
