@@ -24,11 +24,6 @@
     <ProjectReference Include="..\..\..\Microsoft.Identity.Test.Common\Microsoft.Identity.Test.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AppCenter.Crashes">
-      <HintPath>..\XForms.iOS\obj\iPhone\Debug\SignedAssemblies\Microsoft.AppCenter.Crashes.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Update="TestPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
