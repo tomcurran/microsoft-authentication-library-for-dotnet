@@ -11,6 +11,7 @@ using System.Text;
 using Xamarin.UITest;
 using Microsoft.Identity.Test.Common;
 using System.IO;
+using Java.Lang;
 
 //NOTICE! Inorder to run UI automation tests for xamarin locally, you may need to upgrade nunit to 3.0 and above for this project and the core ui Automation project.
 //It is set to 2.6.4 because that is the maximum version that appcenter can support.
@@ -96,6 +97,7 @@ namespace Microsoft.Identity.Test.UIAutomation
                     else
                     {
                         LogMessage($"Fail: {test.Method.Name}, Error: {ex.Message}", stringBuilderMessage);
+                        LogMessage($"Full Dump: {ObjectDumper.Dump(ex)} Full Dump End/n", stringBuilderMessage);
                     }
                     hasFailed = true;
                 }
