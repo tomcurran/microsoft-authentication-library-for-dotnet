@@ -312,6 +312,8 @@ namespace XForms
             }
 
             Console.WriteLine(exception.Message);
+
+            Console.WriteLine("Full Dump:" + ObjectDumper.Dump(exception) + "Full Dump End/n");
         }
     }
 }

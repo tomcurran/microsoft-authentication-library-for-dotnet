@@ -11,6 +11,7 @@
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ObjectDumper.NET" Version="2.4.20008.1" />
     <PackageReference Include="StrongNamer">
         <Version>0.0.8</Version>
     </PackageReference>
