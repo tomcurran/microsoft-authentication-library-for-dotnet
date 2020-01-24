@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 using Microsoft.Identity.Json.Serialization;
 
 namespace Microsoft.Identity.Json
@@ -32,6 +33,7 @@ namespace Microsoft.Identity.Json
     /// Instructs the <see cref="JsonSerializer"/> how to serialize the object.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false)]
+    [ComVisibleAttribute(true)]
     internal abstract class JsonContainerAttribute : Attribute
     {
         /// <summary>
