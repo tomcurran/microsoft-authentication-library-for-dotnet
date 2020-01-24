@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Json;
+using Microsoft.AppCenter.Crashes;
 
 namespace Microsoft.Identity.Client.OAuth2
 {
@@ -182,6 +183,15 @@ namespace Microsoft.Identity.Client.OAuth2
             if (addCorrelationId)
             {
                 VerifyCorrelationIdHeaderInResponse(response.HeadersAsDictionary, requestContext);
+            }
+
+            try
+            {
+                JsonHelper.DeserializeFromJson<T>(response.Body);
+            }
+            catch(Exception ex)
+            {
+                Crashes.TrackError(ex);
             }
 
             return JsonHelper.DeserializeFromJson<T>(response.Body);

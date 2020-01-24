@@ -302,7 +302,7 @@ namespace XForms
 
         private void CreateExceptionMessage(Exception exception)
         {
-            Crashes.TrackError((exception));
+            Crashes.TrackError(exception);
 
             if (exception is MsalException msalException)
             {
