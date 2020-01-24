@@ -35,7 +35,13 @@ namespace Microsoft.Identity.Test.LabInfrastructure
                     s_defaultAuthType = LabAccessAuthenticationType.ClientSecret;
                     s_secret = data;
                 }
+                else
+                {
+                    Console.WriteLine("No Data");
+                }
             }
+            else
+            { Console.WriteLine("no file"); }
         }
 
         public static async Task<string> GetAccessTokenForLabAPIAsync(string labAccessClientId, string labAccessSecret)

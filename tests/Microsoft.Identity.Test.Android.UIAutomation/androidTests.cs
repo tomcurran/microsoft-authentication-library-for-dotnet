@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Test.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow, using the default app configured UiBehavior = Login
         /// </summary>
-        [Test]
+        //[Test]
         public void AcquireTokenTest()
         {
             TestCommon.ResetInternalStaticCaches();
