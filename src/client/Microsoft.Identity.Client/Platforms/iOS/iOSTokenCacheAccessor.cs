@@ -239,6 +239,11 @@ namespace Microsoft.Identity.Client.Platforms.iOS
                     recordToSave.AccessGroup));
             }
 
+            if (secStatusCode == SecStatusCode.DuplicateItem)
+            {
+                secStatusCode = SecKeyChain.Update(recordToSave, recordToSave);
+            }
+
             return secStatusCode;
         }
 
@@ -266,6 +271,11 @@ namespace Microsoft.Identity.Client.Platforms.iOS
             if (secStatusCode == SecStatusCode.ItemNotFound)
             {
                 secStatusCode = SecKeyChain.Add(recordToSave);
+            }
+
+            if (secStatusCode == SecStatusCode.DuplicateItem)
+            {
+                secStatusCode = SecKeyChain.Update(recordToSave, recordToSave);
             }
 
             return secStatusCode;
