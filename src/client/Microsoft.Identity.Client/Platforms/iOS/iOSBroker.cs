@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Client.Platforms.iOS
             {
                 _logger.Info(iOSBrokerConstants.InvokeTheIosBroker);
 
-                NSUrl url = new NSUrl(iOSBrokerConstants.InvokeBroker + brokerPayload.ToQueryParameter());
+                NSUrl url = new NSUrl(iOSBrokerConstants.InvokeV2Broker + brokerPayload.ToQueryParameter());
 
                 _logger.VerbosePii(
                     iOSBrokerConstants.BrokerPayloadPii + brokerPayload.ToQueryParameter(),
