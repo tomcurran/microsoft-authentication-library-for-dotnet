@@ -167,6 +167,7 @@ namespace XamarinDev
 
                 var res = await builder
                     .WithForceRefresh(ForceRefreshSwitch.IsToggled)
+                    .WithParentActivityOrWindow(App.RootViewController)
                     .ExecuteAsync()
                     .ConfigureAwait(true);
 

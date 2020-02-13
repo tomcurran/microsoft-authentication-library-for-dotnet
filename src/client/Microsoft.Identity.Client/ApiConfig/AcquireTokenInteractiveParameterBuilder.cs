@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Client
         internal AcquireTokenInteractiveParameterBuilder WithCurrentSynchronizationContext()
         {
             CommonParameters.AddApiTelemetryFeature(ApiTelemetryFeature.WithCurrentSynchronizationContext);
-            Parameters.UiParent.SynchronizationContext = SynchronizationContext.Current;
+            CommonParameters.UiParent.SynchronizationContext = SynchronizationContext.Current;
             return this;
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Client
         public AcquireTokenInteractiveParameterBuilder WithSystemWebViewOptions(SystemWebViewOptions options)
         {
             CommonParameters.AddApiTelemetryFeature(ApiTelemetryFeature.WithSystemBrowserOptions);
-            Parameters.UiParent.SystemWebViewOptions = options;
+            CommonParameters.UiParent.SystemWebViewOptions = options;
             return this;
         }
 #endif
@@ -183,81 +183,6 @@ namespace Microsoft.Identity.Client
         }
 
         #region WithParentActivityOrWindow
-
-        /*
-         * .WithParentActivityOrWindow is platform specific but we need a solution for
-         * projects like XForms where code is shared from a netstandard assembly. So expose
-         * a variant of .WithParentActivityOrWindow that allows users to inject the parent as an object,
-         * since Activity, ViewController etc. do not exist in NetStandard.
-         */
-
-#if RUNTIME || NETSTANDARD_BUILDTIME
-        /// <summary>
-        ///  Sets a reference to the ViewController (if using Xamarin.iOS), Activity (if using Xamarin.Android)
-        ///  IWin32Window or IntPtr (if using .Net Framework). Used for invoking the browser.
-        /// </summary>
-        /// <remarks>Mandatory only on Android. Can also be set via the PublicClientApplcation builder.</remarks>
-        /// <param name="parent">The parent as an object, so that it can be used from shared NetStandard assemblies</param>
-        /// <returns>The builder to chain the .With methods</returns>
-        public AcquireTokenInteractiveParameterBuilder WithParentActivityOrWindow(object parent)
-        {
-            return WithParentObject(parent);
-        }
-#endif
-
-        private AcquireTokenInteractiveParameterBuilder WithParentObject(object parent)
-        {
-            CommonParameters.AddApiTelemetryFeature(ApiTelemetryFeature.WithParent);
-#if ANDROID
-            if (parent is Activity activity)
-            {
-                Parameters.UiParent.Activity = activity;
-                Parameters.UiParent.CallerActivity = activity;
-            }           
-#elif iOS
-            if (parent is UIViewController uiViewController)
-            {
-                Parameters.UiParent.CallerViewController = uiViewController;
-            }
-#elif MAC
-            if (parent is NSWindow nsWindow)
-            {
-                Parameters.UiParent.CallerWindow = nsWindow;
-            }
-
-#elif DESKTOP
-            if (parent is IWin32Window win32Window)
-            {
-                Parameters.UiParent.OwnerWindow = win32Window;
-            }
-            else if (parent is IntPtr intPtrWindow)
-            {
-                Parameters.UiParent.OwnerWindow = intPtrWindow;
-            }
-            // It's ok on Windows Desktop to not have an owner window, the system will just center on the display
-            // instead of a parent.
-#endif
-            return this;
-        }
-
-#if ANDROID
-        /// <summary>
-        /// Sets a reference to the current Activity that triggers the browser to be shown. Required
-        /// for MSAL to be able to show the browser when using Xamarin.Android
-        /// </summary>
-        /// <param name="activity">The current Activity</param>
-        /// <returns>The builder to chain the .With methods</returns>
-        [CLSCompliant(false)]
-        public AcquireTokenInteractiveParameterBuilder WithParentActivityOrWindow(Activity activity)
-        {
-            if (activity == null)
-            {
-                throw new ArgumentNullException(nameof(activity));
-            }
-
-            return WithParentObject((object)activity);
-        }
-#endif
 
 #if iOS
         /// <summary>
@@ -340,12 +265,12 @@ namespace Microsoft.Identity.Client
             base.Validate();
 
 #if ANDROID
-            if (Parameters.UiParent.Activity == null)
+            if (CommonParameters.UiParent.Activity == null)
             {
                 throw new InvalidOperationException(MsalErrorMessage.ActivityRequiredForParentObjectAndroid);
             }
 #endif
-            if (Parameters.UiParent.SystemWebViewOptions != null &&
+            if (CommonParameters.UiParent.SystemWebViewOptions != null &&
                 Parameters.UseEmbeddedWebView == WebViewPreference.Embedded)
             {
                 throw new MsalClientException(
@@ -353,7 +278,7 @@ namespace Microsoft.Identity.Client
                     MsalErrorMessage.EmbeddedWebviewDefaultBrowser);
             }
 
-            if (Parameters.UiParent.SystemWebViewOptions != null &&
+            if (CommonParameters.UiParent.SystemWebViewOptions != null &&
                Parameters.UseEmbeddedWebView == WebViewPreference.NotSpecified)
             {
                 WithUseEmbeddedWebView(false);

@@ -8,6 +8,7 @@ using Microsoft.Identity.Client.AuthScheme.Bearer;
 using Microsoft.Identity.Client.TelemetryCore;
 using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.TelemetryCore.Internal.Events;
+using Microsoft.Identity.Client.UI;
 
 namespace Microsoft.Identity.Client.ApiConfig.Parameters
 {
@@ -25,6 +26,8 @@ namespace Microsoft.Identity.Client.ApiConfig.Parameters
         public ApiTelemetryId ApiTelemId { get; set; } = ApiTelemetryId.Unknown;
 
         public IAuthenticationScheme AuthenticationScheme { get; set; } = new BearerAuthenticationScheme();
+
+        public CoreUIParent UiParent { get; } = new CoreUIParent();
 
         public void AddApiTelemetryFeature(ApiTelemetryFeature feature)
         {

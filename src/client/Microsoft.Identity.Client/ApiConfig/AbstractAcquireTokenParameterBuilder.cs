@@ -10,6 +10,22 @@ using Microsoft.Identity.Client.ApiConfig.Parameters;
 using Microsoft.Identity.Client.TelemetryCore.Internal.Events;
 using Microsoft.Identity.Client.AuthScheme;
 
+#if iOS
+using UIKit;
+#endif
+
+#if ANDROID
+using Android.App;
+#endif
+
+#if DESKTOP
+using System.Windows.Forms;
+#endif
+
+#if MAC
+using AppKit;
+#endif
+
 namespace Microsoft.Identity.Client
 {
     /// <summary>
@@ -338,6 +354,81 @@ namespace Microsoft.Identity.Client
         {
             CommonParameters.UserProvidedCorrelationId = correlationId;
             CommonParameters.UseCorrelationIdFromUser = true;
+            return (T)this;
+        }
+
+#if ANDROID
+        /// <summary>
+        /// Sets a reference to the current Activity that triggers the browser to be shown. Required
+        /// for MSAL to be able to show the browser when using Xamarin.Android
+        /// </summary>
+        /// <param name="activity">The current Activity</param>
+        /// <returns>The builder to chain the .With methods</returns>
+        [CLSCompliant(false)]
+        public T WithParentActivityOrWindow(Activity activity)
+        {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
+            return WithParentObject((object)activity);
+        }
+#endif
+
+        /*
+        * .WithParentActivityOrWindow is platform specific but we need a solution for
+        * projects like XForms where code is shared from a netstandard assembly. So expose
+        * a variant of .WithParentActivityOrWindow that allows users to inject the parent as an object,
+        * since Activity, ViewController etc. do not exist in NetStandard.
+        */
+
+#if RUNTIME || NETSTANDARD_BUILDTIME
+        /// <summary>
+        ///  Sets a reference to the ViewController (if using Xamarin.iOS), Activity (if using Xamarin.Android)
+        ///  IWin32Window or IntPtr (if using .Net Framework). Used for invoking the browser.
+        /// </summary>
+        /// <remarks>Mandatory only on Android. Can also be set via the PublicClientApplcation builder.</remarks>
+        /// <param name="parent">The parent as an object, so that it can be used from shared NetStandard assemblies</param>
+        /// <returns>The builder to chain the .With methods</returns>
+        public T WithParentActivityOrWindow(object parent)
+        {
+            return WithParentObject(parent);
+        }
+#endif
+
+        internal T WithParentObject(object parent)
+        {
+            CommonParameters.AddApiTelemetryFeature(ApiTelemetryFeature.WithParent);
+#if ANDROID
+            if (parent is Activity activity)
+            {
+                CommonParameters.UiParent.Activity = activity;
+                CommonParameters.UiParent.CallerActivity = activity;
+            }
+#elif iOS
+            if (parent is UIViewController uiViewController)
+            {
+                CommonParameters.UiParent.CallerViewController = uiViewController;
+            }
+#elif MAC
+            if (parent is NSWindow nsWindow)
+            {
+                CommonParameters.UiParent.CallerWindow = nsWindow;
+            }
+
+#elif DESKTOP
+            if (parent is IWin32Window win32Window)
+            {
+                CommonParameters.UiParent.OwnerWindow = win32Window;
+            }
+            else if (parent is IntPtr intPtrWindow)
+            {
+                CommonParameters.UiParent.OwnerWindow = intPtrWindow;
+            }
+            // It's ok on Windows Desktop to not have an owner window, the system will just center on the display
+            // instead of a parent.
+#endif
             return (T)this;
         }
 

@@ -14,7 +14,6 @@ namespace Microsoft.Identity.Client.ApiConfig.Parameters
     internal class AcquireTokenInteractiveParameters : IAcquireTokenParameters
     {
         public Prompt Prompt { get; set; } = Prompt.SelectAccount;
-        public CoreUIParent UiParent { get; } = new CoreUIParent();
         public IEnumerable<string> ExtraScopesToConsent { get; set; } = new List<string>();
         public WebViewPreference UseEmbeddedWebView { get; set; } = WebViewPreference.NotSpecified;
         public string LoginHint { get; set; }
@@ -31,7 +30,6 @@ namespace Microsoft.Identity.Client.ApiConfig.Parameters
             builder.AppendLine("ExtraScopesToConsent: " + string.Join(";", ExtraScopesToConsent ?? new List<string>()));
             builder.AppendLine("Prompt: " + Prompt.PromptValue);
             builder.AppendLine("HasCustomWebUi: " + (CustomWebUi != null));
-            UiParent.SystemWebViewOptions?.LogParameters(logger);
             logger.Info(builder.ToString());
         }
     }
