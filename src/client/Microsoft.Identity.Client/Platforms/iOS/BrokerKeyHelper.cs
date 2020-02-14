@@ -26,9 +26,13 @@ namespace Microsoft.Identity.Client.Platforms.iOS
                 Description = iOSBrokerConstants.BrokerKeyStorageDescription
             };
 
-            NSData key = SecKeyChain.QueryAsData(record);
-            if (key == null)
+            NSData key = SecKeyChain.QueryAsData(record, true, out SecStatusCode code);
+          
+            if (code != SecStatusCode.Success)
             {
+                logger.Info("Attempted to query the keychain was unsuccessful. " +
+                    "SecStatusCode: " + code);
+
                 AesManaged algo = new AesManaged();
                 algo.GenerateKey();
                 byte[] rawBytes = algo.Key;
@@ -54,6 +58,7 @@ namespace Microsoft.Identity.Client.Platforms.iOS
             }
             else
             {
+                
                 brokerKey = key.ToArray();
             }
 
