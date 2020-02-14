@@ -146,6 +146,12 @@ namespace Microsoft.Identity.Client.Platforms.Android
                      TimeUnit.Seconds)
                      .ConfigureAwait(false));
 
+                if (bundleResult == null)
+                {
+                    _logger.Info("Bundle result null");
+                    return null;
+                }
+
                 if (bundleResult.GetBoolean(BrokerConstants.BrokerRequestV2Success))
                 {
                     _logger.Info("Android Broker succsesfully refreshed the access token.");
@@ -191,6 +197,7 @@ namespace Microsoft.Identity.Client.Platforms.Android
                     {
                         brokerPayload.Add(BrokerParameter.HomeAccountId, accountData[BrokerResponseConst.HomeAccountId].ToString());
                         brokerPayload.Add(BrokerParameter.LocalAccountId, accountData[BrokerResponseConst.LocalAccountId].ToString());
+                        _logger.Info("Found account in account manager.");
                         var acc = account;
                         return;
                     }
