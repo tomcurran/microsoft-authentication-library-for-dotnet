@@ -130,36 +130,44 @@ namespace Microsoft.Identity.Client.Platforms.Android
             GetBrokerAccountInfo(brokerPayload, callerActivity);
             Bundle silentOperationBundle = GetSilentBrokerBundle(brokerPayload);
             silentOperationBundle.PutString(BrokerConstants.BrokerAccountManagerOperationKey, BrokerConstants.AcquireTokenSilent);
-
-            IAccountManagerFuture result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
-                BrokerConstants.AuthtokenType,
-                null,
-                silentOperationBundle,
-                null,
-                null,
-                GetPreferredLooper(callerActivity));
-
-            if (result != null)
+            try
             {
-                Bundle bundleResult = (Bundle)(await result.GetResultAsync(
-                     AccountManagerTimeoutSeconds,
-                     TimeUnit.Seconds)
-                     .ConfigureAwait(false));
+                IAccountManagerFuture result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
+                    BrokerConstants.AuthtokenType,
+                    null,
+                    silentOperationBundle,
+                    null,
+                    null,
+                    GetPreferredLooper(callerActivity));
 
-                if (bundleResult == null)
+                if (result != null)
                 {
-                    _logger.Info("Bundle result null");
-                    return null;
-                }
+                    _logger.Info("Account manager result returned.");
+                    Bundle bundleResult = (Bundle)(await result.GetResultAsync(
+                         AccountManagerTimeoutSeconds,
+                         TimeUnit.Seconds)
+                         .ConfigureAwait(false));
 
-                if (bundleResult.GetBoolean(BrokerConstants.BrokerRequestV2Success))
-                {
-                    _logger.Info("Android Broker succsesfully refreshed the access token.");
-                    return bundleResult.GetString(BrokerConstants.BrokerResultV2);
+                    if (bundleResult == null)
+                    {
+                        _logger.Info("Bundle result null.");
+                        return null;
+                    }
+
+                    if (bundleResult.GetBoolean(BrokerConstants.BrokerRequestV2Success))
+                    {
+                        _logger.Info("Android Broker succsesfully refreshed the access token.");
+                        return bundleResult.GetString(BrokerConstants.BrokerResultV2);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.Info("Broker silent authentication failed");
+                throw ex;
+            }
 
-            _logger.Info("Android Broker AddAccount didn't return any results. ");
+            _logger.Info("Android Broker AddAccount didn't return any results.");
             return null;
         }
 
@@ -203,6 +211,12 @@ namespace Microsoft.Identity.Client.Platforms.Android
                     }
                 }
             }
+
+            throw new MsalUiRequiredException(
+                        MsalError.NoAndroidBrokerAccountFound,
+                        MsalErrorMessage.NoAccountForLoginHintAccountManager,
+                        null,
+                        UiRequiredExceptionClassification.AcquireTokenSilentFailed);
         }
 
         //Inorder for broker to use the V2 endpoint during authentication, MSAL must initiate a handshake with broker to specify what endpoint should be used for the request.
