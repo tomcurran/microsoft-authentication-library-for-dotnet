@@ -1,0 +1,18 @@
+steps:
+- task: PythonScript@0
+  displayName: 'Build ${{ parameters.arch }} ${{ parameters.config }}'
+  inputs:
+    scriptPath: build.py
+    arguments: '--arch ${{ parameters.arch }} --configuration ${{ parameters.config }} --djinni hashfail --clean'
+
+- task: PythonScript@0
+  displayName: 'Run ${{ parameters.arch }} ${{ parameters.config }} Unit Tests'
+  inputs:
+    scriptPath: build.py
+    arguments: '--testonly --testtype unit --gtest_filter=-*.MANUAL_*:-*.ADMIN_* --disable-colors'
+
+- task: PythonScript@0
+  displayName: 'Run ${{ parameters.arch }} ${{ parameters.config }} Integration Tests'
+  inputs:
+    scriptPath: build.py
+    arguments: '--testonly --testtype integration --gtest_filter=-*.MANUAL_*:-*.ADMIN_* --disable-colors'

@@ -1,0 +1,92 @@
+trigger: none # Non-PR branches
+pr: none
+schedules:
+# 10 AM GMT = 2 AM PST (3 AM PDT)
+- cron: 0 10 * * *
+  always: true
+  branches:
+    include:
+      - master
+      - dev
+
+jobs:
+- job: Windows_Nightly_ADAL_Cloud
+  displayName: ADAL Windows Nightly
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: 300
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    clean: true
+    submodules: true
+
+  - template: templates/windows-setup.yml
+
+  - template: templates/build-and-test.yml
+    parameters:
+      arch: x64
+      config: Debug
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x64 Debug
+      target: x64\src\cpp
+
+  - template: templates/build-and-test.yml
+    parameters:
+      arch: x64
+      config: Release
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x64 Release
+      target: x64\src\cpp
+
+  - template: templates/build-and-test-no-WAM.yml
+    parameters:
+      arch: x64
+      config: Release
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x64 Release No WAM
+      target: x64\src\cpp
+
+  - template: templates/build-and-test.yml
+    parameters:
+      arch: x86
+      config: Debug
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x86 Debug
+      target: x86\src\cpp
+
+  - template: templates/build-and-test.yml
+    parameters:
+      arch: x86
+      config: Release
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x86 Release
+      target: x86\src\cpp
+
+  - template: templates/build-and-test-no-WAM.yml
+    parameters:
+      arch: x86
+      config: Release
+
+  - template: templates/publish-binaries.yml
+    parameters:
+      flavour: x86 Release No WAM
+      target: x86\src\cpp
+
+  - template: templates/windows-sdl.yml
+    parameters:
+      BuildFullVersion: 2.2.2
+      ReleaseStage: PreRelease

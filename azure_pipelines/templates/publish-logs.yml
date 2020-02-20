@@ -1,0 +1,21 @@
+steps:
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: Build logs'
+  inputs:
+    PathtoPublish: '_logs'
+    ArtifactName: 'Build Logs'
+  continueOnError: true
+  condition: always()
+
+- bash: cp $HOME/msaltest.tsv $BUILD_ARTIFACTSTAGINGDIRECTORY
+  displayName: Copy msaltest.tsv to the artifact staging directory
+  continueOnError: true
+  condition: always()
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: ADAL logs'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/msaltest.tsv'
+    ArtifactName: ADAL Logs'
+  continueOnError: true
+  condition: always()

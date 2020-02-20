@@ -1,0 +1,9 @@
+steps:
+- task: CopyFiles@2
+  displayName: 'Publish ${{ parameters.flavour }} Binaries and Redistributables'
+  inputs:
+    SourceFolder: '_builds\src\cpp'
+    Contents: |
+     Binaries\**
+     Redistributables\**
+    TargetFolder: '${{ parameters.target }}'

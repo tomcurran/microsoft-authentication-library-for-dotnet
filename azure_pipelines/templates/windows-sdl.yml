@@ -1,0 +1,141 @@
+steps:
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@3
+  displayName: 'Run BinSkim '
+  inputs:
+    InputType: Basic
+    AnalyzeTarget: '$(System.DefaultWorkingDirectory)\**\Binaries\Release\*.dll'
+    AnalyzeConfigPath: '$(System.DefaultWorkingDirectory)\scripts\BinSkim.config'
+    AnalyzeVerbose: true
+    AnalyzeHashes: true
+
+- powershell: |
+    $credScanExclusionFile = Join-Path $env:BUILD_SOURCESDIRECTORY "scripts"
+    $credScanExclusionFile = Join-Path $credScanExclusionFile "CredScanExclusion.txt"
+    
+    if (![System.IO.File]::Exists($credScanExclusionFile))
+    {
+    $credScanExclusionFormat=
+    "{{
+      ""tool"": ""Credential Scanner"",
+      ""suppressions"": [
+        {{
+         ""file"": [{0}],
+         ""_justification"": ""Test Files""
+        }}
+      ]
+    }}
+    "
+     
+    $credScanExclusionList=""
+    "\\src\\cpp\\tests\\JWS-Test-Certificate.pfx" |
+      % {
+          $credScanExclusionList += '"{0}",' -f $_
+        }
+     
+    $credScanExclusion = $credScanExclusionFormat -f $credScanExclusionList.TrimEnd(",")
+    $credScanExclusion | Out-File -FilePath $credScanExclusionFile -Force
+    }
+  displayName: 'Create CredScan Exclusion file'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+  displayName: 'Run CredScan'
+  inputs:
+    suppressionsFile: '$(Build.SourcesDirectory)\scripts\CredScanExclusion.txt'
+    debugMode: false
+
+- powershell: |
+    $poliCheckBatchFile = Join-Path $env:BUILD_SOURCESDIRECTORY "scripts"
+    $poliCheckBatchFile = Join-Path $poliCheckBatchFile "policheck-batch.txt"
+    
+    if (![System.IO.File]::Exists($poliCheckBatchFile))
+    {
+      $poliCheckBatch=
+      "src\cpp\src
+      src\cpp\tests
+      *.bat
+      *.cmd
+      *.cpp
+      *.cs
+      *.h
+      *.ps1
+      *.txt
+      "
+      $poliCheckBatch | Out-File -FilePath $poliCheckBatchFile -Force
+    }
+  displayName: 'Create PoliCheck batch file'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+  displayName: 'Run PoliCheck'
+  inputs:
+    targetType: F
+    targetArgument: '$(Build.SourcesDirectory)\scripts\policheck-batch.txt'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+  displayName: 'Post Analysis'
+  inputs:
+    BinSkim: true
+    CredScan: true
+    PoliCheck: true
+
+- task: VSBuild@1
+  displayName: 'Build solution cppadal.sln'
+  inputs:
+    solution: '_builds\src\cpp\cppadal.sln'
+    msbuildArgs: '/t:cppadal'
+    createLogFile: true
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-prefast.SDLNativeRules@2
+  displayName: 'Run the PREfast SDL Native Rules for MSBuild'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-autoapplicability.AutoApplicability@1
+  displayName: 'Run AutoApplicability'
+  inputs:
+    InternalRelease: true
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+  displayName: 'Publish Security Analysis Logs'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-uploadtotsa.TSAUpload@1
+  displayName: 'TSA upload to Codebase: ADALCPP Stamp: Azure'
+  inputs:
+    tsaVersion: TsaV2
+    codeBaseName: ADALCPP
+    uploadAPIScan: false
+    uploadFortifySCA: false
+    uploadFxCop: false
+    uploadModernCop: false
+    uploadRoslyn: false
+    uploadTSLint: false
+    validateToolOutput: Error
+
+- template: signing.yml
+  parameters:
+    FolderPath: 'x64\src\cpp\Binaries'
+    Pattern: 'adal.dll,adal_no_wam.dll'
+
+- template: signing.yml
+  parameters:
+    FolderPath: 'x86\src\cpp\Binaries'
+    Pattern: 'adal.dll,adal_no_wam.dll'
+
+- task: PowerShell@1
+  displayName: 'Layout files for NuGet packaging'
+  inputs:
+    scriptName: scripts/LayoutNuGetFiles.ps1
+    arguments: '-GitRootFolder $(Build.SourcesDirectory) -PackageRootFolder $(Build.SourcesDirectory)\NugetPackageLayout -BuildNumber $(Build.BuildNumber) -ReleaseVersion ${{ parameters.BuildFullVersion }} -ReleaseStage ${{ parameters.ReleaseStage }} -BranchName $(Build.SourceBranchName)'
+
+- task: NuGetCommand@2
+  displayName: 'Create NuGet Package'
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)\NugetPackageLayout\ADAL.CPP.nuspec'
+    packDestination: '$(Build.ArtifactStagingDirectory)\AdalNativeNuGet'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish NuGet Package Artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\AdalNativeNuGet'
+    ArtifactName: 'AALClientNativePackage-${{ parameters.BuildFullVersion }}-${{ parameters.ReleaseStage }}-$(Build.BuildNumber)'

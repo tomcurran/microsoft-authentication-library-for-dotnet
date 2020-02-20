@@ -1,0 +1,87 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'windows-latest'
+  demands:
+  - msbuild
+  - visualstudio
+
+steps:
+- checkout: self
+  clean: true
+  submodules: true
+
+- template: templates/windows-setup.yml
+
+- template: templates/build-and-test.yml
+  parameters:
+    arch: x64
+    config: Debug
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x64 Debug
+    target: x64\src\cpp
+
+- template: templates/build-and-test.yml
+  parameters:
+    arch: x64
+    config: Release
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x64 Release
+    target: x64\src\cpp
+
+- template: templates/build-and-test-no-WAM.yml
+  parameters:
+    arch: x64
+    config: Release
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x64 Release No WAM
+    target: x64\src\cpp
+
+- template: templates/build-and-test.yml
+  parameters:
+    arch: x86
+    config: Debug
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x86 Debug
+    target: x86\src\cpp
+
+- template: templates/build-and-test.yml
+  parameters:
+    arch: x86
+    config: Release
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x86 Release
+    target: x86\src\cpp
+
+- template: templates/build-and-test-no-WAM.yml
+  parameters:
+    arch: x86
+    config: Release
+
+- template: templates/publish-binaries.yml
+  parameters:
+    flavour: x86 Release No WAM
+    target: x86\src\cpp
+
+- template: templates/windows-sdl.yml
+  parameters:
+    BuildFullVersion: 3.2.1
+    ReleaseStage: RC
+
+- task: NuGetCommand@2
+  displayName: 'NuGet push (VSTS)'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)\AdalNativeNuGet\*.nupkg'
+    publishVstsFeed: 'e568c31a-5854-47a8-ab8f-e6f3db484ed6'

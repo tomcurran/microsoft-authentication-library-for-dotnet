@@ -1,0 +1,7 @@
+steps:
+- task: DeleteFiles@1
+  displayName: 'Delete files from _builds'
+  inputs:
+    SourceFolder: '_builds'
+    Contents: 'src\cpp\Binaries'
+  condition: always()

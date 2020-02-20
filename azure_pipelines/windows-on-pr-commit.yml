@@ -1,0 +1,29 @@
+trigger: none # Non-PR branches
+pr:
+  branches:
+    include:
+    - '*'
+
+jobs:
+- job: ADAL_Windows_OnPrCommit_Azure
+  displayName: ADAL Windows OnPRCommit Azure
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: 30
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    clean: true
+    submodules: true
+
+  - template: templates/windows-setup.yml
+
+  - template: templates/build-and-test.yml
+    parameters:
+      arch: x64
+      config: Debug
+
+  - template: templates/delete-files-from-build.yml
