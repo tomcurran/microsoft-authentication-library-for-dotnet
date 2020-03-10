@@ -18,17 +18,16 @@ namespace Microsoft.Identity.Client.Platforms.iOS
             byte[] brokerKey = null;
             SecRecord record = new SecRecord(SecKind.GenericPassword)
             {
-                Generic = NSData.FromString(iOSBrokerConstants.LocalSettingsContainerName),
                 Service = iOSBrokerConstants.BrokerKeyService,
-                Account = iOSBrokerConstants.BrokerKeyAccount,
-                Label = iOSBrokerConstants.BrokerKeyLabel,
-                Comment = iOSBrokerConstants.BrokerKeyComment,
-                Description = iOSBrokerConstants.BrokerKeyStorageDescription
+                Account = iOSBrokerConstants.BrokerKeyAccount
             };
 
-            NSData key = SecKeyChain.QueryAsData(record);
-            if (key == null)
+            NSData key = SecKeyChain.QueryAsData(record, true, out SecStatusCode code);
+            if (code != SecStatusCode.Success)
             {
+                logger.Info("Attempted to query the keychain was unsuccessful. " +
+                    "SecStatusCode: " + code);
+
                 AesManaged algo = new AesManaged();
                 algo.GenerateKey();
                 byte[] rawBytes = algo.Key;
