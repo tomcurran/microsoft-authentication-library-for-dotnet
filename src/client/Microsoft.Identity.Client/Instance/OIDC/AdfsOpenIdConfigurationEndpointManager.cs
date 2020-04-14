@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.OAuth2;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal class AdfsOpenIdConfigurationEndpointManager : IOpenIdConfigurationEndpointManager
     {

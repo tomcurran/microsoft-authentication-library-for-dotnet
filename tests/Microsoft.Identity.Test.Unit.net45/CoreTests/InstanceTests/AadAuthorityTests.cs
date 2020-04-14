@@ -16,6 +16,7 @@ using Microsoft.Identity.Test.Common.Core.Helpers;
 using Microsoft.Identity.Test.Common.Mocks;
 using Microsoft.Identity.Client.UI;
 using System.Threading;
+using Microsoft.Identity.Client.Instance.OIDC;
 
 namespace Microsoft.Identity.Test.Unit.CoreTests.InstanceTests
 {

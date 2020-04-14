@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Client.Internal.Requests;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal class AuthorityEndpoints
     {
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Client.Instance
             // GetAccounts and AcquireTokenSilent do not need this
             await UpdateAuthorityWithPreferredNetworkHostAsync(requestParameters).ConfigureAwait(false);
 
-            requestParameters.Endpoints = await 
+            requestParameters.Endpoints = await
                 requestParameters.RequestContext.ServiceBundle.AuthorityEndpointResolutionManager.ResolveEndpointsAsync(
                     requestParameters.AuthorityInfo,
                     requestParameters.LoginHint,

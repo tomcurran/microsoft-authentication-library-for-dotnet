@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Core;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal interface IAuthorityEndpointResolutionManager
     {

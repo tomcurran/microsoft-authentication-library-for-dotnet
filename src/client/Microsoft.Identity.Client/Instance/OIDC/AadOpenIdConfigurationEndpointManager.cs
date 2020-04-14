@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Instance.Discovery;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal class AadOpenIdConfigurationEndpointManager : IOpenIdConfigurationEndpointManager
     {

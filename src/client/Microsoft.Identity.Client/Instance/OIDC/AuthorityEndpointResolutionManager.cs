@@ -8,10 +8,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.OAuth2;
-using Microsoft.Identity.Client.TelemetryCore.Internal;
 using Microsoft.Identity.Client.Utils;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal class AuthorityEndpointResolutionManager : IAuthorityEndpointResolutionManager
     {

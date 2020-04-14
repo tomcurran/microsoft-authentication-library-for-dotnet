@@ -12,6 +12,7 @@ using Microsoft.Identity.Client.Instance;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Guid = System.Guid;
+using Microsoft.Identity.Client.Instance.OIDC;
 
 namespace Microsoft.Identity.Test.Unit.CoreTests.InstanceTests
 {

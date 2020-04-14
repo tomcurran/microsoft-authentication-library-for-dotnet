@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Core;
 
-namespace Microsoft.Identity.Client.Instance
+namespace Microsoft.Identity.Client.Instance.OIDC
 {
     internal class B2COpenIdConfigurationEndpointManager : IOpenIdConfigurationEndpointManager
     {
@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Client.Instance
             string userPrincipalName,
             RequestContext requestContext)
         {
-                string defaultEndpoint = string.Format(
-                    CultureInfo.InvariantCulture,
-                    new Uri(authorityInfo.CanonicalAuthority).AbsoluteUri + Constants.OpenIdConfigurationEndpoint);
-                return Task.FromResult(defaultEndpoint);
+            string defaultEndpoint = string.Format(
+                CultureInfo.InvariantCulture,
+                new Uri(authorityInfo.CanonicalAuthority).AbsoluteUri + Constants.OpenIdConfigurationEndpoint);
+            return Task.FromResult(defaultEndpoint);
         }
     }
 }
